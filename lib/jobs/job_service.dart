@@ -29,16 +29,16 @@ class JobService{
     if(_current.length > (currentPage * pageSize * (ProviderType.values.length - 1))){
       return LoadNextStatus(false, true);
     }
-    _loadNextController.add(LoadingStatus(true, false));
+    _loadNextController.add(LoadingStatus(true, false, false));
     List<JobListItem> jobListItemList = await _jobs.getJobList(jobListRequest, currentPage, pageSize);
     if(jobListItemList.length == 0){
-      _loadNextController.add(LoadingStatus(false, true));
+      _loadNextController.add(LoadingStatus(false, true, true));
       return LoadNextStatus(true, true);
     }
     page = currentPage;
     _current.addAll(jobListItemList);
     _itemsController.add(_current);
-    _loadNextController.add(LoadingStatus(false, false));
+    _loadNextController.add(LoadingStatus(false, false, false));
     return LoadNextStatus(true, false);
   }
 
@@ -50,12 +50,16 @@ class JobService{
     _itemsController.add(_current);
 
     page = 0;
-    _loadNextController.add(LoadingStatus(true, false));
+    _loadNextController.add(LoadingStatus(true, false, false));
     List<JobListItem> jobListItemList = await _jobs.getJobList(jobListRequest, currentPage, pageSize);
+    if(jobListItemList.length == 0){
+      _loadNextController.add(LoadingStatus(false, true, false));
+      return true;
+    }
     page = currentPage;
     _current.addAll(jobListItemList);
     _itemsController.add(_current);
-    _loadNextController.add(LoadingStatus(false, false));
+    _loadNextController.add(LoadingStatus(false, false, false));
     return true;
   }
 

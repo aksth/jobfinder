@@ -1,5 +1,6 @@
 class LoadingStatus{
   bool loading;
   bool emptyList;
-  LoadingStatus(this.loading, this.emptyList);
+  bool loadNextGaveEmptyList;
+  LoadingStatus(this.loading, this.emptyList, this.loadNextGaveEmptyList);
 }

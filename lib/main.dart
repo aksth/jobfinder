@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
   double _prevScrollPos = 0.0;
   final snackBarEmptyFetched = SnackBar(content: Text('No more jobs to fetch.'));
   Utils utils = Utils();
+  bool lastLoadBySearchTap = true;
 
   //Since github returns page with size 50, we use this number to again re-size the page
   //returned by the github according to our needs.
@@ -101,6 +102,7 @@ class _HomePageState extends State<HomePage> {
       currentPage = 0;
       jobService = JobService();
       jobService.loadFromSearch(jobListRequest, currentPage, pageSize);
+      lastLoadBySearchTap = true;
     });
   }
 
@@ -114,19 +116,20 @@ class _HomePageState extends State<HomePage> {
       jobService.loadNext(jobListRequest, currentPage, pageSize)
           .then(
               (LoadNextStatus loadNextStatus) {
-            if(!loadNextStatus.fetched){
-              currentPage--;
-            }
-            if(loadNextStatus.fetched && loadNextStatus.emptyList){
-              currentPage--;
-              print("no more jobs to show...");
-            }
-          }
-      )
+                if(!loadNextStatus.fetched){
+                  currentPage--;
+                }
+                if(loadNextStatus.fetched && loadNextStatus.emptyList){
+                  currentPage--;
+                  print("no more jobs to show...");
+                }
+              }
+          )
           .catchError(
               (error) {
             currentPage--;
           });
+      lastLoadBySearchTap = false;
     }
 
     _prevScrollPos = currentScrollPos;
@@ -203,11 +206,24 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               } else {
-                if(status != null && status.emptyList == true){
+                if(status != null && status.emptyList && status.loadNextGaveEmptyList && !lastLoadBySearchTap){
                   WidgetsBinding.instance.addPostFrameCallback((_){
                     Scaffold.of(context).showSnackBar(snackBarEmptyFetched);
                   });
                   print("No more jobs to show.");
+                }else if(status != null && status.emptyList && !status.loadNextGaveEmptyList && lastLoadBySearchTap){
+                  return SliverToBoxAdapter(
+                    child: Container(
+                      // color: Colors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Card(
+                        child: ListTile(
+                          leading: Icon(Icons.block),
+                          title: Text("No jobs found for your search."),
+                        ),
+                      ),
+                    ),
+                  );
                 }
                 return SliverToBoxAdapter(
                   child: Container(height: 0),
