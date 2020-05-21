@@ -19,10 +19,10 @@ class GlobalConfig{
     await remoteConfig.activateFetched();
     String key = remoteConfig.getValue('google_places_api_key').asString();
     if(key == null || key == ""){
-      print ("No Google Places API found!");
+      print ("??? Google Places API key NOT found!");
       _googleApiKey = "";
     }else{
-      print("Google Places API fetched!");
+      print("Google Places API key fetched!");
       _googleApiKey = key;
     }
 
